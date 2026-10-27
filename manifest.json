@@ -1,0 +1,24 @@
+{
+  "name": "BULLETIN CONTROL PRO — Spécial Sécurité Privée",
+  "short_name": "Bulletin Control Pro",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#8b1e1e",
+  "theme_color": "#8b1e1e",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "description": "BULLETIN CONTROL PRO V8.3.5 — congés payés ONET/GORON sur salaire lissé, neutralisation paramétrable, dixième uniquement informatif, sauvegardes et CSG."
+}

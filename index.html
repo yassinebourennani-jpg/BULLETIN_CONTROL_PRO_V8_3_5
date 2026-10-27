@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#8b1e1e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>BULLETIN CONTROL PRO — Sécurité Privée</title>
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--ink:#1b2430;--mut:#6b7686;--pri:#8b1e1e;--acc:#b42323;--line:#dfe4eb;--ok:#176b46;--warn:#9a6700}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:12px 12px 44px}main{max-width:820px;margin:auto}
+h1{font-size:23px;margin:16px 0 4px;color:var(--pri)}.sub{color:var(--mut);font-size:13px;margin:0 0 12px}.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px #0002}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:620px){.grid{grid-template-columns:1fr}}
+label{display:block;font-weight:700;margin-bottom:5px;font-size:13px}input,select{width:100%;font-size:18px;padding:10px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}input[type=checkbox]{width:auto;transform:scale(1.15);margin-right:7px}input:focus,select:focus{outline:none;border-color:var(--pri)}input:disabled,select:disabled{background:#eef0f2;color:#667}.hint{font-size:11px;color:var(--mut);margin-top:4px}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.row.between{justify-content:space-between;align-items:center}.group{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}.group h3{font-size:14px;margin:0 0 10px;color:var(--pri)}
+button{font-size:14px;padding:11px 13px;border:0;border-radius:10px;background:var(--pri);color:#fff;font-weight:750;cursor:pointer}button.sec{background:var(--line);color:var(--ink)}button.ghost{background:#fff;color:var(--pri);border:1px solid var(--pri)}button.danger{background:#9b1c1c}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#8b1e1e14;color:var(--pri);font-size:12px;font-weight:800}.big{text-align:center}.big .lbl{color:var(--mut);font-size:13px}.big .val{font-size:38px;font-weight:800;color:var(--acc)}.big .diff{font-size:13px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:6px 2px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}th{color:var(--mut);font-weight:600}.section td{font-weight:800;color:var(--pri);padding-top:12px;border-bottom:0}.tot td{font-weight:800}.var td{background:#8b1e1e0b}.note,.msg{font-size:11px;color:var(--mut)}.msg{text-align:center;min-height:16px}.profile-head{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.profile-title{font-weight:850}.prime-month{border:1px dashed #c9d0da;border-radius:10px;padding:10px;margin-top:8px}.prime-month.off{opacity:.55}.checkline{display:flex;align-items:center;font-weight:700;font-size:13px}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:14px;z-index:50}.modal.show{display:flex}.modal-box{width:min(760px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:16px;padding:16px;box-shadow:0 12px 40px #0005}.modal-box h2{margin:0 0 6px;color:var(--pri);font-size:20px}.modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}.profiles{display:grid;gap:8px;margin-top:12px}.profile-choice{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px}.profile-choice strong{display:block}.profile-choice small{color:var(--mut)}.sep{height:1px;background:var(--line);margin:14px 0}.status-ok{color:var(--ok);font-weight:700}.status-warn{color:var(--warn);font-weight:700}.mini{font-size:11px;color:var(--mut)}
+
+/* PRO8.2 – contrôles explicites des contributions patronales CSG */
+.card{border:1px solid #e4e8ee;box-shadow:0 3px 12px #17243b0b}
+.card-heading{margin:0 0 12px;font-size:16px;color:var(--pri)}
+.field-section{border:1px solid var(--line);border-radius:13px;margin:10px 0;background:#fff;overflow:hidden}
+.field-section>summary{list-style:none;cursor:pointer;padding:14px;font-weight:800;color:var(--pri);background:#fafbfc;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px}
+.field-section>summary::-webkit-details-marker{display:none}
+.field-section>summary:after{content:'+';font-weight:800;font-size:21px;color:var(--pri)}
+.field-section[open]>summary:after{content:'−'}
+.field-section>.section-content{padding:13px;border-top:1px solid var(--line)}
+.field-section .group{margin-top:0}
+.section-note{font-size:12px;color:var(--mut);margin:0 0 12px;line-height:1.5}
+.table-scroll{overflow:auto;-webkit-overflow-scrolling:touch}
+.pay-table{width:100%;min-width:0;table-layout:fixed;font-size:12px}
+.pay-table td,.pay-table th{padding:9px 6px;vertical-align:middle}
+.pay-table td:first-child,.pay-table th:first-child{width:42%;min-width:0;overflow-wrap:anywhere;text-align:left}.pay-table td:nth-child(2),.pay-table th:nth-child(2){width:20%}.pay-table td:nth-child(3),.pay-table th:nth-child(3){width:17%}.pay-table td:nth-child(4),.pay-table th:nth-child(4){width:21%}
+.pay-table th{background:#f3f5f8;text-transform:uppercase;letter-spacing:.025em;font-size:10px}
+.pay-table .section td{background:#f5ebeb;font-size:12px;padding:10px 8px}
+.pay-table .tot td{background:#f5f7fa;border-top:1px solid #cbd3df}
+.pay-table .final td{background:#f6e8e8;color:#8b1e1e;font-weight:850;font-size:13px}
+.pay-table .var td{background:transparent}
+.pay-table .var:nth-child(even) td{background:#fbfcfd}
+.explain{font-size:12px;line-height:1.55;padding:10px 12px;border-radius:9px;background:#fff7e6;color:#7b5100;margin-top:10px}
+.explain:empty{display:none}
+.modal-box .modal-actions{position:sticky;bottom:-16px;background:#fff;padding:12px 2px 6px;border-top:1px solid var(--line);z-index:2}
+.mini-indicator{display:inline-block;border-radius:6px;padding:3px 7px;background:#e9edf3;font-size:11px}
+@media(max-width:620px){.modal-box{padding:12px}.field-section>.section-content{padding:10px}.grid{grid-template-columns:1fr}.pay-table{font-size:10px}.pay-table th,.pay-table td{padding:7px 3px;overflow-wrap:anywhere}body{padding:10px}}
+
+/* PRO8.3 – contrôle réel vs simulé, historique, sauvegarde, impression */
+.mini-btn{font-size:12px;padding:7px 9px}
+.hist-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px}
+.hist-row strong{display:block;text-transform:capitalize}.hist-row small{display:block;color:var(--mut);font-size:12px;line-height:1.5}
+.hist-total{font-size:12px;line-height:1.5;padding:10px 12px;border-radius:9px;background:#eef3f8;color:#24405f;margin-top:10px}
+.ctl td:first-child,.ctl th:first-child{width:28%}.ctl td:nth-child(n+2),.ctl th:nth-child(n+2){width:24%}
+.head-line{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}.head-line .card-heading{margin:0}
+.print-only{display:none}
+@media print{body{background:#fff;padding:0}.card{box-shadow:none;border:0;padding:6px 0}.no-print,.modal,#histCard{display:none!important}.print-only{display:block;font-size:12px;margin-bottom:8px}.pay-table th,.pay-table td{padding:4px 3px}}
+</style>
+</head>
+<body><main>
+<h1>BULLETIN CONTROL PRO</h1>
+<p class="sub"><strong>Spécial Sécurité Privée</strong><br>Simulation &amp; contrôle de votre bulletin de paie — profils paramétrables <span class="badge">PRO V8.3.5</span></p>
+
+<div class="card no-print">
+  <div class="profile-head">
+    <div><div class="mini">Profil actif</div><div class="profile-title" id="activeProfileName">Aucun profil</div></div>
+    <div class="row" style="margin-top:0"><button id="chooseProfile" class="sec">Changer de profil</button><button id="editProfile">Paramétrer</button></div>
+  </div>
+</div>
+
+<div class="card no-print">
+<h2 class="card-heading">Saisie du mois</h2>
+<details class="field-section" open><summary>01 · Contrat et vacations</summary><div class="section-content"><div class="grid">
+ <div><label for="contrat">Type de contrat</label><select id="contrat"><option value="complet">Temps complet</option><option value="partiel">Temps partiel</option></select></div>
+ <div><label for="duree">Durée contractuelle mensuelle (heures)</label><input id="duree" type="number" min="0.01" step="0.01" value="96" disabled><div class="hint" id="dureeHint">Temps complet : base du profil</div></div>
+ <div><label for="taux">Taux horaire brut (€)</label><input id="taux" type="number" min="0" step="0.001" value="12.960"></div>
+ <div><label for="vac">Nombre de vacations</label><input id="vac" type="number" min="0" step="1" value="0"></div>
+ <div><label for="moisRef">Mois du bulletin</label><input id="moisRef" type="month" placeholder="AAAA-MM"><div class="hint">Sert à classer l'enregistrement dans l'historique et au cumul annuel.</div></div>
+ </div></div></details>
+<details class="field-section"><summary>02 · Heures, reports et majorations</summary><div class="section-content"><div class="grid">
+ <div id="carryChevBox"><label>Chevauchement sortant (heures)</label><input id="chev" type="number" min="0" step="0.5" value="0"></div>
+ <div id="carryChevNightBox"><label>Dont heures de nuit sortantes</label><input id="chevNuit" type="number" min="0" step="0.5" value="0"></div>
+ <div id="carryReportBox"><label>Report entrant de travail (heures)</label><input id="reportH" type="number" min="0" step="0.5" value="0"></div>
+ <div id="carryReportNightBox"><label>Dont heures de nuit reportées</label><input id="reportNuit" type="number" min="0" step="0.5" value="0"></div>
+ <div><label>Heures fériées</label><input id="ferie" type="number" min="0" step="0.5" value="0"></div>
+ <div><label>Heures dimanche</label><input id="sundayH" type="number" min="0" step="0.5" value="0"></div>
+ <div><label>Heures diverses</label><input id="diversH" type="number" min="0" step="0.5" value="0"></div>
+ </div></div></details>
+<details class="field-section"><summary>03 · Heures supplémentaires et CSG</summary><div class="section-content">
+ <p class="section-note">La méthode de calcul et l'exonération sont définies dans les paramètres du profil.</p><div class="grid">
+ <div><label>Heures supplémentaires du mois</label><input id="overtimeH" type="number" min="0" step="0.5" value="0"></div>
+ <div><label>Compteur trimestriel (heures)</label><input id="quarterH" type="number" min="0" step="0.5" placeholder="Non renseigné"></div>
+ <div><label>Montant brut des heures supplémentaires (€) — facultatif</label><input id="otGrossManual" type="number" min="0" step="0.01" placeholder="Calcul automatique"><div class="hint">À saisir seulement pour reprendre à l'eurocentime un bulletin réel.</div></div>
+ <div><label>Cumul annuel antérieur d'heures sup exonérées (brut, €)</label><input id="otFiscalCumul" type="number" min="0" step="0.01" value="0"><div class="hint">Permet de contrôler le plafond d'exonération d'impôt.</div><div class="row" style="margin-top:8px"><button type="button" class="sec mini-btn" id="calcCumulOt">Calculer depuis l'historique</button></div><div class="hint" id="cumulMsg"></div></div>
+ <div><label>Contribution patronale santé (€)</label><input id="patHealth" type="number" min="0" step="0.01" placeholder="Selon profil"><div class="hint">Montant employeur figurant sur le bulletin ; sinon taux du profil.</div></div>
+ <div><label>Contribution patronale prévoyance (€)</label><input id="patPrevo" type="number" min="0" step="0.01" placeholder="Selon profil"><div class="hint">Ne pas confondre avec la cotisation salariale.</div></div>
+ </div>
+ <div class="row"><button type="button" class="sec" id="applyOnetCsgMonth">Reprendre l’exemple ONET 09/2026 : santé 21,63 € + prévoyance 21,42 €</button></div>
+ <p class="section-note">Ce bouton renseigne uniquement les contributions patronales du mois, sans modifier le profil ni les autres éléments du bulletin.</p>
+ <div class="hint" id="overtimeModeHint"></div>
+  <div class="explain" id="csgWarning" role="status" aria-live="polite"></div>
+ </div></details>
+<details class="field-section" id="cpMonthSection" style="display:none"><summary>04 · Congés payés</summary><div class="section-content">
+ <p class="section-note">Le salaire mensuel lissé reste présent : les congés du mois sont inscrits en positif, puis neutralisés en négatif. Par défaut, la neutralisation reprend exactement le montant positif ; une autre base peut être choisie dans le profil. Le dixième est affiché comme contrôle parallèle : il ne modifie pas automatiquement le montant simulé. Si le dixième est plus favorable, une régularisation doit être étudiée.</p>
+ <div class="grid">
+  <div><label>Jours de congés pris</label><input id="cpDays" type="number" min="0" step="0.5" value="0"><div class="hint">Saisir selon le système du profil : jours ouvrables ou ouvrés.</div></div>
+  <div><label>Rémunération brute de référence pour le dixième (€)</label><input id="cpReferenceGross" type="number" min="0" step="0.01" placeholder="À renseigner pour comparer"><div class="hint">Total éligible de la période de référence, pas le salaire d'un seul mois.</div></div>
+  <div id="cpRealHours1"><label>Heures de congés non travaillées</label><input id="cpHoursAbsent" type="number" min="0" step="0.01" placeholder="Heures correspondant aux congés"></div>
+  <div id="cpRealHours2"><label>Heures qui auraient été travaillées dans le mois</label><input id="cpHoursMonth" type="number" min="0" step="0.01" placeholder="Horaire réel théorique du mois"></div>
+  <div><label>Début du congé (facultatif)</label><input id="cpStart" type="date"></div>
+  <div><label>Fin du congé (facultatif)</label><input id="cpEnd" type="date"></div>
+  <div><label>Retenue pour congés (€) — correction facultative</label><input id="cpManualDeduction" type="number" min="0" step="0.01" placeholder="Calcul automatique"></div>
+  <div><label>Indemnité versée (€) — correction facultative</label><input id="cpManualPay" type="number" min="0" step="0.01" placeholder="Calcul lissé du profil (dixième indicatif)"></div>
+ </div>
+ <div class="explain" id="cpMonthWarning" role="status" aria-live="polite"></div>
+ </div></details>
+<details class="field-section"><summary>05 · Primes et ajustements</summary><div class="section-content">
+ <div class="grid"><div><label>Acompte (€)</label><input id="acompte" type="number" min="0" step="0.01" value="0"></div></div>
+ <div class="group"><h3>Régularisation du mois</h3><div class="grid">
+ <div><label>Libellé</label><input id="regLabel" type="text" maxlength="60" placeholder="Ex. correction de paie"></div>
+ <div><label>Montant (€)</label><input id="regAmount" type="number" min="0" step="0.01" value="0"></div>
+ <div><label>Sens</label><select id="regSign"><option value="credit">Crédit (+)</option><option value="debit">Débit (-)</option></select></div>
+ <div><label>Traitement</label><select id="regTarget"><option value="gross">Dans le brut</option><option value="net">Hors brut / net</option></select></div>
+ </div></div><div id="monthlyPrimes"></div>
+ </div></details>
+<details class="field-section"><summary>06 · Contrôle avec le bulletin réel</summary><div class="section-content">
+ <p class="section-note">Reporter les totaux imprimés sur le bulletin reçu pour mesurer l'écart avec la simulation. Champs facultatifs.</p>
+ <div class="grid">
+ <div><label for="realBrut">Total brut réel (€)</label><input id="realBrut" type="number" min="0" step="0.01" placeholder="Non renseigné"></div>
+ <div><label for="realCot">Cotisations nettes réelles (€)</label><input id="realCot" type="number" min="0" step="0.01" placeholder="Non renseigné"><div class="hint">Même définition que la ligne simulée « Total cotisations nettes » : cotisations + CSG/CRDS − réduction sur heures sup.</div></div>
+ <div><label for="realNet">Net à payer avant impôt réel (€)</label><input id="realNet" type="number" min="0" step="0.01" placeholder="Non renseigné"></div>
+ </div></div></details>
+<div class="row"><button id="saveMonth">Enregistrer ce mois</button><button id="clearMonth" class="sec">Remise à zéro</button></div><div class="msg" id="msg"></div>
+</div>
+<div class="explain" id="csgMainAlert" role="status" aria-live="polite"></div>
+
+<div class="print-only" id="printHead"></div>
+<div class="card big"><div class="lbl">Net à payer avant impôt</div><div class="val" id="net">—</div><div class="diff" id="summary"></div></div>
+<div class="card"><div class="head-line"><h2 class="card-heading">Bulletin simulé</h2><button type="button" class="sec mini-btn no-print" id="printBtn">Imprimer / PDF</button></div><div class="table-scroll"><table class="pay-table"><thead><tr><th>Désignation</th><th>Base</th><th>Taux</th><th>Montant</th></tr></thead><tbody id="tbody"></tbody></table></div><div class="hint">Montants indicatifs avant impôt. La colonne « Base » indique des heures ou des euros selon la rubrique.</div></div>
+<div class="card" id="cpAuditCard" style="display:none">
+ <h2 class="card-heading">Contrôle des congés payés</h2>
+ <div class="table-scroll"><table class="pay-table"><thead><tr><th>Méthode / rubrique</th><th>Base</th><th>Calcul</th><th>Montant</th></tr></thead><tbody id="cpAuditBody"></tbody></table></div>
+ <div class="explain" id="cpAuditInfo" role="status" aria-live="polite"></div>
+</div>
+<div class="card" id="csgAuditCard">
+ <h2 class="card-heading">Contrôle de l'assiette CSG</h2>
+ <div class="table-scroll"><table class="pay-table"><thead><tr><th>Élément de calcul</th><th colspan="2">Détail</th><th>Montant</th></tr></thead><tbody id="csgAuditBody"></tbody></table></div>
+ <div class="explain" id="csgAuditInfo" role="status" aria-live="polite"></div>
+ <div class="hint">Les montants réels renseignés pour la comparaison ne remplacent pas les montants simulés. L'assiette CSG est calculée sur le brut simulé et les heures supplémentaires reconnues par le profil.</div>
+</div>
+<div class="card" id="controlCard" style="display:none"><h2 class="card-heading">Contrôle : bulletin réel vs simulé</h2><div class="table-scroll"><table class="pay-table ctl"><thead><tr><th>Poste</th><th>Simulé</th><th>Réel</th><th>Écart</th></tr></thead><tbody id="ctlBody"></tbody></table></div><div class="hint">Écart = réel − simulé.</div><div class="explain" id="ctlDiag"></div></div>
+<div class="card" id="histCard" style="display:none"><h2 class="card-heading">Historique des mois enregistrés</h2><div id="histBody"></div></div>
+<div class="card note">Simulateur indicatif : contrôler les règles de chaque profil et les cotisations patronales à partir des bulletins originaux. Les heures supplémentaires exonérées fiscalement sont présentées séparément pour la CSG. L’exonération d’impôt dépend d’un plafond annuel et des conditions légales. Données des profils conservées dans le navigateur : utiliser « Changer de profil » puis « Exporter les données » pour en garder une sauvegarde.</div>
+</main>
+
+<div class="modal" id="profileChooser"><div class="modal-box">
+  <h2>Choisir un profil</h2><div class="hint">Sélectionnez un profil existant ou créez-en un nouveau.</div>
+  <div class="profiles" id="profilesList"></div>
+  <div class="msg" id="dataMsg"></div>
+  <div class="modal-actions"><button id="newProfile">+ Nouveau profil</button><button id="exportData" class="sec">Exporter les données</button><button id="importData" class="sec">Importer</button><input type="file" id="importFile" accept="application/json,.json" hidden><button id="closeChooser" class="sec">Fermer</button></div>
+</div></div>
+
+<div class="modal" id="profileEditor"><div class="modal-box">
+ <h2 id="editorTitle">Nouveau profil</h2><p class="section-note">Paramètres enregistrés par entreprise. Ouvrez seulement la rubrique que vous souhaitez modifier.</p>
+ <details class="field-section" open><summary>01 · Identité et temps de travail</summary><div class="section-content"><div class="grid">
+  <div><label>Nom du profil</label><input id="pName" type="text" maxlength="40" placeholder="Ex. ONET ou GORON"></div>
+  <div><label>Taux horaire brut par défaut (€)</label><input id="pTaux" type="number" min="0" step="0.001" value="12.960"></div>
+  <div><label>Base temps complet mensuelle (heures)</label><input id="pBaseH" type="number" min="1" step="0.01" value="151.67"></div>
+  <div><label>Durée d'une vacation (heures)</label><input id="pVacH" type="number" min="0" step="0.5" value="12"></div>
+  <div><label>PMSS (€)</label><input id="pPmss" type="number" min="0" step="0.01" value="4005"></div>
+ </div></div></details>
+ <details class="field-section"><summary>02 · Majorations et indemnités</summary><div class="section-content"><div class="grid">
+  <div><label class="checkline"><input id="pNightOn" type="checkbox" checked>Majoration nuit activée</label></div>
+  <div><label>Heures de nuit par vacation</label><input id="pNightH" type="number" min="0" step="0.5" value="9"></div>
+  <div><label>Majoration nuit (%)</label><input id="pNightPct" type="number" min="0" step="0.1" value="10"></div>
+  <div><label class="checkline"><input id="pSundayOn" type="checkbox">Majoration dimanche activée</label></div>
+  <div><label>Majoration dimanche (€/heure)</label><input id="pSundayRate" type="number" min="0" step="0.001" value="1.296"></div>
+  <div><label class="checkline"><input id="pHolidayOn" type="checkbox" checked>Majoration férié activée</label></div>
+  <div><label>Majoration férié (%)</label><input id="pHolidayPct" type="number" min="0" step="0.1" value="100"></div>
+  <div><label class="checkline"><input id="pAncOn" type="checkbox" checked>Ancienneté activée</label></div>
+  <div><label>Ancienneté (%)</label><input id="pAncPct" type="number" min="0" step="0.1" value="0"></div>
+  <div><label class="checkline"><input id="pDiversOn" type="checkbox" checked>Heures diverses activées</label></div>
+  <div><label>Gestion chevauchements et reports</label><select id="pCarryMode"><option value="off">Désactivée</option><option value="preserve">Travail et nuit conservés</option></select></div>
+  <div><label class="checkline"><input id="pHabOn" type="checkbox" checked>Habillage activé</label></div>
+  <div><label>Taux habillage (€/heure)</label><input id="pHabValue" type="number" min="0" step="0.001" value="0.131"></div>
+  <div><label>Base de calcul de l’habillage</label><select id="pHabHoursMode"><option value="vacations">Toutes les heures des vacations (méthode actuelle)</option><option value="after_chev">Heures des vacations moins chevauchement sortant (GORON)</option></select><div class="hint">GORON : 13 vacations × 12 heures − 7 heures sortantes = 149 heures. Ce choix n'affecte pas les autres primes.</div></div>
+  <div><label class="checkline"><input id="pEntretienOn" type="checkbox" checked>Indemnité entretien tenue activée</label></div>
+  <div><label>Entretien tenue (€/heure)</label><input id="pEntretienRate" type="number" min="0" step="0.0001" value="0.0580"></div>
+  <div><label>Panier</label><select id="pPanierMode"><option value="off">Désactivé</option><option value="vacation">Vacations × montant</option><option value="fixed">Forfait mensuel</option></select></div>
+  <div><label>Montant panier / forfait (€)</label><input id="pPanierValue" type="number" min="0" step="0.01" value="4.36"></div>
+ </div></div></details>
+ <details class="field-section"><summary>03 · Heures supplémentaires</summary><div class="section-content"><div class="grid">
+  <div><label>Mode de décompte</label><select id="pOvertimeMode"><option value="off">Désactivé</option><option value="monthly">Mensuel</option><option value="quarterly">Trimestriel</option></select></div>
+  <div><label>Seuil trimestriel (heures)</label><input id="pOvertimeThreshold" type="number" min="0" step="0.01" value="455"></div>
+  <div><label>Barème</label><select id="pOvertimeRates"><option value="split">8 premières à 125 %, suivantes à 150 %</option><option value="125">Toutes à 125 %</option><option value="150">Toutes à 150 %</option></select></div>
+ </div><p class="section-note">Le seuil 455 heures et le barème sont des paramètres du profil, pas des règles universelles. Éviter de compter deux fois les heures déjà payées dans le salaire de base.</p></div></details>
+ <details class="field-section"><summary>04 · CSG et exonérations des heures sup</summary><div class="section-content"><div class="grid">
+  <div><label class="checkline"><input id="pCsgOvertimeOn" type="checkbox" checked>Séparer l'assiette CSG des heures sup exonérées</label></div>
+  <div><label class="checkline"><input id="pOtTaxExemptOn" type="checkbox" checked>Heures sup éligibles à l'exonération d'impôt</label></div>
+  <div><label>Plafond annuel d'exonération IR (net fiscal, €)</label><input id="pOtTaxLimit" type="number" min="0" step="0.01" value="7500"></div>
+  <div><label class="checkline"><input id="pOtReliefOn" type="checkbox" checked>Réduction de cotisations salariales sur heures sup</label></div>
+  <div><label>Taux maximal de réduction (%)</label><input id="pOtReliefPct" type="number" min="0" step="0.001" value="11.310"></div>
+  <div><label>Abattement CSG sur la rémunération (%)</label><input id="pCsgAbat" type="number" min="0" step="0.001" value="98.250"></div>
+  <div><label>CSG déductible (%)</label><input id="pCsg" type="number" min="0" step="0.001" value="6.800"></div>
+  <div><label>CSG/CRDS non déductible (%)</label><input id="pCrds" type="number" min="0" step="0.001" value="2.900"></div>
+ </div><hr class="sep"><h3>Contributions patronales intégrées à la base CSG</h3><p class="section-note">Il s'agit des montants employeur, jamais des retenues salarié. Les taux calculent une valeur par défaut, remplaçable chaque mois à partir du bulletin.</p>
+ <div class="grid">
+  <div><label>Base de santé patronale</label><select id="pEmpHealthBase"><option value="pmss">PMSS</option><option value="gross">Brut</option></select></div>
+  <div><label>Taux patronal santé (%)</label><input id="pEmpHealthRate" type="number" min="0" step="0.001" value="0"></div>
+  <div><label>Base de prévoyance patronale</label><select id="pEmpPrevoBase"><option value="gross">Brut</option><option value="pmss">PMSS</option></select></div>
+  <div><label>Taux patronal prévoyance (%)</label><input id="pEmpPrevoRate" type="number" min="0" step="0.001" value="0"></div>
+ </div>
+ <div class="row"><button type="button" class="sec" id="presetOnetCsg">Préremplir les taux de l’exemple ONET (0,540 % PMSS et 0,865 % brut)</button></div>
+ <p class="section-note">Exemple du bulletin de septembre 2026 : à vérifier sur les autres périodes. Enregistrer le profil pour conserver ces taux.</p>
+ </div></details>
+ <details class="field-section"><summary>05 · Autres cotisations salariées</summary><div class="section-content"><div class="grid">
+  <div><label>Assiettes plafonnées / santé</label><select id="pCotBaseMode"><option value="pmss">Avec PMSS</option><option value="gross">Sur le brut</option></select></div>
+  <div><label>Santé salarié (%)</label><input id="pHealth" type="number" min="0" step="0.001" value="0.510"></div>
+  <div><label>Invalidité-décès salarié (%)</label><input id="pInv" type="number" min="0" step="0.001" value="0.600"></div>
+  <div><label>SS vieillesse plafonnée (%)</label><input id="pSsPlaf" type="number" min="0" step="0.001" value="6.900"></div>
+  <div><label>SS vieillesse déplafonnée (%)</label><input id="pSsDeplaf" type="number" min="0" step="0.001" value="0.400"></div>
+  <div><label>Retraite complémentaire T1 (%)</label><input id="pT1" type="number" min="0" step="0.001" value="4.010"></div>
+ </div></div></details>
+ <details class="field-section"><summary>06 · Primes personnalisées</summary><div class="section-content">
+  <div class="row between" style="margin-top:0"><p class="section-note">Prime forfaitaire, heures, vacations, taux mensuel et traitement dans ou hors brut.</p><button type="button" id="addPrime">+ Ajouter une prime</button></div>
+  <div id="primeEditors"></div>
+ </div></details>
+  <details class="field-section"><summary>07 · Congés payés</summary><div class="section-content">
+   <div class="grid">
+    <div><label class="checkline"><input id="pCpOn" type="checkbox">Activer les congés payés</label><div class="hint">Désactivé par défaut sur les profils existants : aucune incidence sur la paie avant activation.</div></div>
+    <div><label>Décompte des jours</label><select id="pCpDayType"><option value="ouvrables">Jours ouvrables (30 jours de référence)</option><option value="ouvres">Jours ouvrés (25 jours de référence)</option></select></div>
+    <div><label>Méthode du maintien</label><select id="pCpHoldMode"><option value="real_hours">Horaire réel du mois (heures à saisir)</option><option value="days_divisor">Indemnité et retenue au diviseur journalier</option><option value="lissage">Salaire lissé ONET / GORON : indemnité (+), neutralisation horaire (−)</option></select></div>
+    <div><label>Diviseur journalier de l’indemnité</label><input id="pCpDivisor" type="number" min="1" step="0.5" value="26"><div class="hint">Exemple : 26. À vérifier sur le bulletin et les règles du profil ONET ou GORON.</div></div>
+    <div><label>Mode de neutralisation des congés</label><select id="pCpNeutralMode"><option value="mirror">Même montant que les congés pris (+ / −)</option><option value="hours">Heures neutralisées × taux horaire</option></select><div class="hint">Pour reproduire les lignes équilibrées « Congés pris » et « Absence congés » des bulletins ONET/GORON, choisir le même montant.</div></div>
+    <div><label>Heures neutralisées par jour de congé (profil)</label><input id="pCpHoursPerDay" type="number" min="0.01" step="0.01" value="5.83"><div class="hint">À régler selon la méthode de paie : exemple GORON 5,83 heures par jour. Applicable aussi à ONET si son profil est configuré ainsi.</div></div>
+    <div><label class="checkline"><input id="pCpAncOn" type="checkbox" checked>Inclure l'ancienneté dans le maintien</label></div>
+   </div>
+   <p class="section-note">ONET / GORON avec lissage : indemnité (+) = (salaire de base + ancienneté selon profil) × jours / diviseur. Neutralisation (−) = même montant par défaut ; alternativement jours × heures/jour × taux horaire si le profil l’exige. Le dixième est un contrôle parallèle non appliqué automatiquement. Si celui-ci est plus favorable, le bulletin doit être vérifié : le salarié a droit à la méthode la plus avantageuse. Renseigner la rémunération de référence et vérifier les primes incluses.</p>
+  </div></details>
+  <div class="modal-actions"><button id="saveProfile">Enregistrer le profil</button><button id="cancelProfile" class="sec">Annuler</button></div>
+ <div class="msg" id="profileMsg"></div>
+</div></div>
+
+<script>
+"use strict";
+const PROFILE_KEY="bc_pro_profiles_v1", ACTIVE_KEY="bc_pro_active_profile_v1", MONTH_PREFIX="bc_pro_month_v1_";
+const $=id=>document.getElementById(id), numVal=(id,d=0)=>{const x=parseFloat($(id).value);return Number.isFinite(x)?x:d};
+const round=x=>Math.round((x+Number.EPSILON)*100)/100, eur=x=>Number(x||0).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}), fmt=x=>Number(x||0).toLocaleString("fr-FR",{maximumFractionDigits:2});
+const monthlyIds=["contrat","duree","taux","vac","chev","chevNuit","reportH","reportNuit","ferie","sundayH","diversH","overtimeH","quarterH","otGrossManual","otFiscalCumul","patHealth","patPrevo","acompte","regLabel","regAmount","regSign","regTarget","moisRef","realBrut","realCot","realNet","cpDays","cpReferenceGross","cpHoursAbsent","cpHoursMonth","cpStart","cpEnd","cpManualDeduction","cpManualPay"];
+const monthlyTextIds=new Set(["contrat","regLabel","regSign","regTarget","otGrossManual","patHealth","patPrevo","moisRef","realBrut","realCot","realNet","cpReferenceGross","cpHoursAbsent","cpHoursMonth","cpStart","cpEnd","cpManualDeduction","cpManualPay"]);
+let profiles=loadProfiles(), activeId=localStorage.getItem(ACTIVE_KEY)||"", editingId=null, editorPrimes=[];
+
+function newPrimeId(){return "pr_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8)}
+function defaultPrime(i=1,enabled=false){return {id:newPrimeId(),enabled,name:`Prime ${i}`,method:"fixed",value:0,target:"gross"}}
+function normalizePrime(pr,i){const x=pr&&typeof pr==="object"?pr:{};return {id:x.id||newPrimeId(),enabled:!!x.enabled,name:String(x.name||`Prime ${i+1}`),method:x.method||"fixed",value:Number(x.value||0),target:x.target==="net"?"net":"gross"}}
+function defaultRules(){return {hourlyRate:12.960,fullTimeHours:151.67,vacationHours:12,nightHours:9,nightPct:10,sundayOn:false,sundayRate:1.296,seniorityPct:0,holidayPct:100,pmss:4005,cotBaseMode:"pmss",overtimeMode:"off",overtimeThreshold:455,overtimeRates:"split",nightOn:true,holidayOn:true,seniorityOn:true,diversOn:true,carryMode:"preserve",habOn:true,habValue:.131,habHoursMode:"vacations",panierMode:"vacation",panierValue:4.36,entretienOn:true,entretienRate:0.0580,health:.510,inv:.600,ssPlaf:6.900,ssDeplaf:.400,t1:4.010,csg:6.800,crds:2.900,csgAbat:98.250,csgOvertimeOn:true,otTaxExemptOn:true,otTaxLimit:7500,otReliefOn:true,otReliefPct:11.31,empHealthBase:"pmss",empHealthRate:0,empPrevoBase:"gross",empPrevoRate:0,cpOn:false,cpDayType:"ouvrables",cpHoldMode:"lissage",cpDivisor:26,cpHoursPerDay:5.83,cpNeutralMode:"mirror",cpAncOn:true}}
+function defaultProfile(name="Nouveau profil"){
+ return {id:"p_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),name,updatedAt:new Date().toISOString(),rules:defaultRules(),primes:[1,2,3,4].map(i=>defaultPrime(i,false))}
+}
+function normalizeProfile(p){if(!p||typeof p!=="object")return null;const x=clone(p);x.rules={...defaultRules(),...(x.rules||{})};if(!["off","preserve"].includes(x.rules.carryMode))x.rules.carryMode="preserve";if(x.rules.habOn===undefined)x.rules.habOn=(x.rules.habMode||"hours")!=="off";if(!["vacations","after_chev"].includes(x.rules.habHoursMode))x.rules.habHoursMode="vacations";if(x.rules.cpHoldMode==="goron_modulation")x.rules.cpHoldMode="lissage";x.primes=Array.isArray(x.primes)?x.primes.map(normalizePrime):[];return x}
+function loadProfiles(){try{const raw=JSON.parse(localStorage.getItem(PROFILE_KEY)||"[]");if(!Array.isArray(raw))return [];const out=raw.map(normalizeProfile).filter(Boolean);localStorage.setItem(PROFILE_KEY,JSON.stringify(out));return out}catch(e){return []}}
+function saveProfiles(){localStorage.setItem(PROFILE_KEY,JSON.stringify(profiles))}
+function getProfile(){return profiles.find(p=>p.id===activeId)||null}
+function clone(x){return JSON.parse(JSON.stringify(x))}
+
+function legacyPrimeOption(p){const ok=["fixed","hours_hourly","hours_custom","hours_percent","hours_rate_month","vacations","base_percent","monthly_amount"];if(ok.includes(p.method))return "";const labels={contract_hours_custom:"Ancienne méthode — heures contractuelles × taux spécifique",vacations_percent:"Ancienne méthode — vacations × durée × taux horaire × %",hours_percent:"Ancienne méthode — heures × taux horaire × %"};return `<option value="${escapeHtml(p.method)}" selected>${escapeHtml(labels[p.method]||"Ancienne méthode conservée")}</option>`}
+function primeEditorHtml(p,i){return `<div class="group" data-prime-editor="${i}"><div class="row between" style="margin-top:0"><strong>${escapeHtml(p.name||`Prime ${i+1}`)}</strong><div class="row" style="margin-top:0"><button type="button" class="sec" data-prime-action="duplicate" data-prime-index="${i}">Dupliquer</button><button type="button" class="danger" data-prime-action="remove" data-prime-index="${i}">Supprimer</button></div></div><div class="grid">
+<div><label class="checkline"><input id="pe${i}Enabled" type="checkbox" ${p.enabled?"checked":""}>Prime activée</label></div>
+<div><label>Intitulé</label><input id="pe${i}Name" type="text" maxlength="60" value="${escapeHtml(p.name||`Prime ${i+1}`)}"></div>
+<div><label>Méthode de calcul</label><select id="pe${i}Method"><option value="fixed" ${p.method==="fixed"?"selected":""}>Forfait fixe</option><option value="hours_hourly" ${p.method==="hours_hourly"?"selected":""}>Heures saisies × taux horaire</option><option value="hours_custom" ${p.method==="hours_custom"?"selected":""}>Heures saisies × taux spécifique</option><option value="vacations" ${p.method==="vacations"?"selected":""}>Vacations × montant</option><option value="hours_rate_month" ${p.method==="hours_rate_month"?"selected":""}>Heures saisies × taux (%) saisissable mensuellement</option><option value="hours_percent" ${p.method==="hours_percent"?"selected":""}>Heures saisies × taux horaire × % du profil</option><option value="base_percent" ${p.method==="base_percent"?"selected":""}>Salaire de base × %</option><option value="monthly_amount" ${p.method==="monthly_amount"?"selected":""}>Montant saisi chaque mois</option>${legacyPrimeOption(p)}</select></div>
+<div><label>Valeur / taux du profil</label><input id="pe${i}Value" type="number" min="0" step="0.001" value="${Number(p.value||0)}"><div class="hint">Forfait, taux spécifique, montant par vacation ou pourcentage selon la méthode.</div></div>
+<div><label>Traitement</label><select id="pe${i}Target"><option value="gross" ${p.target==="gross"?"selected":""}>Entre dans le BRUT</option><option value="net" ${p.target==="net"?"selected":""}>Hors brut / ajouté au NET</option></select></div>
+</div></div>`}
+function renderPrimeEditors(){$("primeEditors").innerHTML=editorPrimes.map(primeEditorHtml).join("")}
+function syncEditorPrimes(){editorPrimes=editorPrimes.map((pr,i)=>({id:pr.id||newPrimeId(),enabled:$("pe"+i+"Enabled")?$("pe"+i+"Enabled").checked:!!pr.enabled,name:$("pe"+i+"Name")?($("pe"+i+"Name").value.trim()||`Prime ${i+1}`):(pr.name||`Prime ${i+1}`),method:$("pe"+i+"Method")?$("pe"+i+"Method").value:(pr.method||"fixed"),value:$("pe"+i+"Value")?numVal("pe"+i+"Value"):Number(pr.value||0),target:$("pe"+i+"Target")?$("pe"+i+"Target").value:(pr.target||"gross")}))}
+function addPrimeEditor(){syncEditorPrimes();editorPrimes.push(defaultPrime(editorPrimes.length+1,true));renderPrimeEditors();$("profileMsg").textContent="Nouvelle prime ajoutée au profil."}
+function removePrimeEditor(i){syncEditorPrimes();if(!editorPrimes[i])return;editorPrimes.splice(i,1);renderPrimeEditors()}
+function duplicatePrimeEditor(i){syncEditorPrimes();const src=editorPrimes[i];if(!src)return;const cp={...clone(src),id:newPrimeId(),name:(src.name||`Prime ${i+1}`)+" — copie",enabled:true};editorPrimes.splice(i+1,0,cp);renderPrimeEditors()}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+
+function renderProfileList(){const box=$("profilesList");if(!profiles.length){box.innerHTML='<div class="hint">Aucun profil enregistré pour le moment.</div>';return}box.innerHTML=profiles.map(p=>`<div class="profile-choice"><div><strong>${escapeHtml(p.name)}</strong><small>Mis à jour ${new Date(p.updatedAt||Date.now()).toLocaleDateString("fr-FR")}</small></div><div class="row" style="margin-top:0"><button data-act="use" data-id="${p.id}">Utiliser</button><button class="sec" data-act="dup" data-id="${p.id}">Dupliquer</button><button class="sec" data-act="rename" data-id="${p.id}">Renommer</button><button class="sec" data-act="edit" data-id="${p.id}">Modifier</button><button class="danger" data-act="del" data-id="${p.id}">Supprimer</button></div></div>`).join("")}
+function openChooser(force=false){renderProfileList();$("profileChooser").classList.add("show");$("closeChooser").style.display=force?"none":"inline-block"}
+function closeChooser(){if(getProfile())$("profileChooser").classList.remove("show")}
+
+function openEditor(profile=null){const p=profile?clone(profile):defaultProfile();editingId=profile?profile.id:null;$("editorTitle").textContent=profile?`Modifier — ${profile.name}`:"Nouveau profil";$("pName").value=p.name;const r=p.rules;
+ [["pTaux",r.hourlyRate],["pBaseH",r.fullTimeHours],["pVacH",r.vacationHours],["pNightH",r.nightHours],["pNightPct",r.nightPct],["pAncPct",r.seniorityPct],["pHolidayPct",r.holidayPct],["pSundayRate",r.sundayRate],["pPmss",r.pmss],["pOvertimeThreshold",r.overtimeThreshold],["pHabValue",r.habValue],["pPanierValue",r.panierValue],["pEntretienRate",r.entretienRate],["pHealth",r.health],["pInv",r.inv],["pSsPlaf",r.ssPlaf],["pSsDeplaf",r.ssDeplaf],["pT1",r.t1],["pCsg",r.csg],["pCrds",r.crds],["pCsgAbat",r.csgAbat],["pOtTaxLimit",r.otTaxLimit],["pOtReliefPct",r.otReliefPct],["pEmpHealthRate",r.empHealthRate],["pEmpPrevoRate",r.empPrevoRate],["pCpDivisor",r.cpDivisor],["pCpHoursPerDay",r.cpHoursPerDay]].forEach(([id,v])=>$(id).value=v);
+ $("pNightOn").checked=!!r.nightOn;$("pHolidayOn").checked=!!r.holidayOn;$("pAncOn").checked=!!r.seniorityOn;$("pDiversOn").checked=!!r.diversOn;$("pSundayOn").checked=!!r.sundayOn;$("pCarryMode").value=r.carryMode||"preserve";$("pHabOn").checked=!!r.habOn;$("pHabHoursMode").value=r.habHoursMode||"vacations";$("pPanierMode").value=r.panierMode||"off";$("pEntretienOn").checked=!!r.entretienOn;$("pCotBaseMode").value=r.cotBaseMode||"pmss";$("pOvertimeMode").value=r.overtimeMode||"off";$("pOvertimeRates").value=r.overtimeRates||"split";$("pCsgOvertimeOn").checked=!!r.csgOvertimeOn;$("pOtTaxExemptOn").checked=!!r.otTaxExemptOn;$("pOtReliefOn").checked=!!r.otReliefOn;$("pEmpHealthBase").value=r.empHealthBase||"pmss";$("pEmpPrevoBase").value=r.empPrevoBase||"gross";$("pCpOn").checked=!!r.cpOn;$("pCpNeutralMode").value=r.cpNeutralMode||"mirror";$("pCpDayType").value=r.cpDayType||"ouvrables";$("pCpHoldMode").value=r.cpHoldMode||"real_hours";$("pCpAncOn").checked=!!r.cpAncOn;editorPrimes=(p.primes&&p.primes.length?p.primes:[1,2,3,4].map(i=>defaultPrime(i,false))).map(normalizePrime);renderPrimeEditors();$("profileMsg").textContent="";$("profileEditor").classList.add("show")}
+function readEditor(){const name=$("pName").value.trim();if(!name)throw new Error("Donnez un nom au profil.");const existing=editingId?profiles.find(p=>p.id===editingId):null;const p=existing?clone(existing):defaultProfile(name);p.name=name;p.updatedAt=new Date().toISOString();p.rules={hourlyRate:numVal("pTaux"),fullTimeHours:numVal("pBaseH",151.67),vacationHours:numVal("pVacH",12),nightHours:numVal("pNightH",9),nightPct:numVal("pNightPct",10),seniorityPct:numVal("pAncPct"),holidayPct:numVal("pHolidayPct",100),sundayOn:$("pSundayOn").checked,sundayRate:numVal("pSundayRate"),pmss:numVal("pPmss"),cotBaseMode:$("pCotBaseMode").value,overtimeMode:$("pOvertimeMode").value,overtimeThreshold:numVal("pOvertimeThreshold",455),overtimeRates:$("pOvertimeRates").value,nightOn:$("pNightOn").checked,holidayOn:$("pHolidayOn").checked,seniorityOn:$("pAncOn").checked,diversOn:$("pDiversOn").checked,carryMode:$("pCarryMode").value,habOn:$("pHabOn").checked,habValue:numVal("pHabValue"),habHoursMode:$("pHabHoursMode").value,panierMode:$("pPanierMode").value,panierValue:numVal("pPanierValue"),entretienOn:$("pEntretienOn").checked,entretienRate:numVal("pEntretienRate"),health:numVal("pHealth"),inv:numVal("pInv"),ssPlaf:numVal("pSsPlaf"),ssDeplaf:numVal("pSsDeplaf"),t1:numVal("pT1"),csg:numVal("pCsg"),crds:numVal("pCrds"),csgAbat:numVal("pCsgAbat"),csgOvertimeOn:$("pCsgOvertimeOn").checked,otTaxExemptOn:$("pOtTaxExemptOn").checked,otTaxLimit:numVal("pOtTaxLimit",7500),otReliefOn:$("pOtReliefOn").checked,otReliefPct:numVal("pOtReliefPct",11.31),empHealthBase:$("pEmpHealthBase").value,empHealthRate:numVal("pEmpHealthRate"),empPrevoBase:$("pEmpPrevoBase").value,empPrevoRate:numVal("pEmpPrevoRate"),cpOn:$("pCpOn").checked,cpDayType:$("pCpDayType").value,cpHoldMode:$("pCpHoldMode").value,cpDivisor:numVal("pCpDivisor",26),cpHoursPerDay:numVal("pCpHoursPerDay",5.83),cpNeutralMode:$("pCpNeutralMode").value,cpAncOn:$("pCpAncOn").checked};syncEditorPrimes();p.primes=editorPrimes.map(normalizePrime);return p}
+
+function saveProfileFromEditor(){try{
+ const p=readEditor(),previous=getProfile();
+ // Un profil modifié ne doit pas écraser la saisie mensuelle qui n'a pas encore été enregistrée.
+ const draft=previous&&previous.id===p.id?collectMonth(previous):null;
+ const overtimeChanged=!!(draft&&(previous.rules.overtimeMode!==p.rules.overtimeMode||previous.rules.overtimeRates!==p.rules.overtimeRates));
+ if(overtimeChanged)draft.otGrossManual="";
+ const idx=profiles.findIndex(x=>x.id===p.id);if(idx>=0)profiles[idx]=p;else profiles.push(p);
+ saveProfiles();activeId=p.id;localStorage.setItem(ACTIVE_KEY,activeId);
+ $("profileEditor").classList.remove("show");$("profileChooser").classList.remove("show");
+ applyProfile(p,false,draft);
+ $("msg").textContent=overtimeChanged?"Profil enregistré. Saisie du mois conservée ; montant manuel des heures supplémentaires effacé car le barème ou la période a changé.":"Profil enregistré. Saisie du mois conservée.";
+ }catch(e){$("profileMsg").textContent=e.message}}
+function duplicateProfile(id){const src=profiles.find(p=>p.id===id);if(!src)return;const p=clone(src);p.id="p_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);p.name=src.name+" — copie";p.updatedAt=new Date().toISOString();profiles.push(p);saveProfiles();renderProfileList()}
+function renameProfile(id){const p=profiles.find(x=>x.id===id);if(!p)return;const n=prompt("Nouveau nom du profil :",p.name);if(!n||!n.trim())return;p.name=n.trim();p.updatedAt=new Date().toISOString();saveProfiles();if(activeId===id)$("activeProfileName").textContent=p.name;renderProfileList()}
+function deleteProfile(id){const p=profiles.find(x=>x.id===id);if(!p)return;if(!confirm(`Supprimer le profil « ${p.name} » ?`))return;profiles=profiles.filter(x=>x.id!==id);saveProfiles();localStorage.removeItem(MONTH_PREFIX+id);localStorage.removeItem("bc_pro_hist_v1_"+id);if(activeId===id){activeId="";localStorage.removeItem(ACTIVE_KEY);$("activeProfileName").textContent="Aucun profil";openChooser(true)}else renderProfileList();renderHistory()}
+
+function emptyPrimeMonth(p){const out={};(p.primes||[]).forEach(pr=>out[pr.id]={apply:true,qty:0,amount:0,rate:""});return out}
+function defaultMonth(p){return {contrat:"complet",duree:96,taux:p.rules.hourlyRate,vac:0,chev:0,chevNuit:0,reportH:0,reportNuit:0,ferie:0,sundayH:0,diversH:0,overtimeH:0,quarterH:"",otGrossManual:"",otFiscalCumul:0,patHealth:"",patPrevo:"",acompte:0,regLabel:"",regAmount:0,regSign:"credit",regTarget:"gross",moisRef:"",realBrut:"",realCot:"",realNet:"",cpDays:0,cpReferenceGross:"",cpHoursAbsent:"",cpHoursMonth:"",cpStart:"",cpEnd:"",cpManualDeduction:"",cpManualPay:"",primeMonth:emptyPrimeMonth(p)}}
+function normalizePrimeMonth(p,raw){const out={};const old=raw&&raw.primeMonth;(p.primes||[]).forEach((pr,i)=>{const src=Array.isArray(old)?old[i]:(old&&old[pr.id]);out[pr.id]={apply:src?src.apply!==false:true,qty:Number(src&&src.qty||0),amount:Number(src&&src.amount||0),rate:src&&src.rate!==undefined?src.rate:""}});return out}
+function loadMonth(p){try{const raw=JSON.parse(localStorage.getItem(MONTH_PREFIX+p.id)||"null");if(!raw)return defaultMonth(p);const m={...defaultMonth(p),...raw};if(raw.reg!==undefined&&raw.regAmount===undefined){const legacy=Number(raw.reg)||0;m.regAmount=Math.abs(legacy);m.regSign=legacy<0?"debit":"credit";m.regTarget="gross";m.regLabel="Régularisation"}m.primeMonth=normalizePrimeMonth(p,raw);return m}catch(e){return defaultMonth(p)}}
+function applyProfile(p,resetMonth=false,monthOverride=null){$("activeProfileName").textContent=p.name;const m=monthOverride?{...defaultMonth(p),...monthOverride,primeMonth:normalizePrimeMonth(p,monthOverride)}:resetMonth?defaultMonth(p):loadMonth(p);monthlyIds.forEach(id=>{if(m[id]!==undefined)$(id).value=m[id]});renderMonthlyPrimes(p,m);render();renderHistory()}
+function renderMonthlyPrimes(p,m){const active=(p.primes||[]).filter(pr=>pr.enabled);if(!active.length){$("monthlyPrimes").innerHTML="";return}$("monthlyPrimes").innerHTML='<div class="group"><h3>Primes du mois</h3>'+active.map(pr=>{const pm=(m.primeMonth&&m.primeMonth[pr.id])||{apply:true,qty:0,amount:0};let input="";if(pr.method==="hours_hourly"||pr.method==="hours_custom"||pr.method==="hours_percent"||pr.method==="hours_rate_month")input=`<div><label>${pr.method==="hours_percent"?"Heures concernées":"Heures du mois"}</label><input data-pm-qty="${pr.id}" type="number" min="0" step="0.5" value="${Number(pm.qty||0)}"></div>`;if(pr.method==="hours_rate_month")input+=`<div><label>Taux de prime du mois (%)</label><input data-pm-rate="${pr.id}" type="number" min="0" step="0.1" value="${pm.rate!==""&&pm.rate!==undefined?Number(pm.rate):Number(pr.value||0)}"></div>`;else if(pr.method==="vacations_percent")input=`<div><label>Vacations concernées</label><input data-pm-qty="${pr.id}" type="number" min="0" step="1" value="${Number(pm.qty||0)}"></div>`;else if(pr.method==="monthly_amount")input=`<div><label>Montant du mois (€)</label><input data-pm-amount="${pr.id}" type="number" step="0.01" value="${Number(pm.amount||0)}"></div>`;return `<div class="prime-month"><div class="grid"><div><label class="checkline"><input data-pm-apply="${pr.id}" type="checkbox" ${pm.apply!==false?"checked":""}>${escapeHtml(pr.name)}</label><div class="hint">${methodLabel(pr)} · ${pr.target==="gross"?"BRUT":"Hors brut / NET"}</div></div>${input||'<div><div class="hint">Calcul automatique avec la règle du profil.</div></div>'}</div></div>`}).join("")+'</div>';document.querySelectorAll("[data-pm-qty],[data-pm-amount],[data-pm-rate],[data-pm-apply]").forEach(el=>el.addEventListener("input",render))}
+function methodLabel(pr){if(pr.method==="fixed")return `Forfait ${eur(pr.value)} €`;if(pr.method==="hours_hourly")return "Heures saisies × taux horaire";if(pr.method==="hours_custom")return `Heures saisies × ${eur(pr.value)} €`;if(pr.method==="contract_hours_custom")return `Heures contractuelles × ${eur(pr.value)} €`;if(pr.method==="vacations")return `Vacations × ${eur(pr.value)} €`;if(pr.method==="vacations_percent")return `Vacations × heures par vacation × taux horaire × ${fmt(pr.value)} %`;if(pr.method==="hours_rate_month")return `Heures × taux horaire × taux de prime mensuel (défaut ${fmt(pr.value)} %)`;if(pr.method==="hours_percent")return `Heures concernées × taux horaire × ${fmt(pr.value)} %`;if(pr.method==="base_percent")return `Salaire de base × ${fmt(pr.value)} %`;return "Montant saisi chaque mois"}
+function currentPrimeMonth(p){const out={};(p.primes||[]).forEach(pr=>{const a=document.querySelector(`[data-pm-apply="${pr.id}"]`),q=document.querySelector(`[data-pm-qty="${pr.id}"]`),m=document.querySelector(`[data-pm-amount="${pr.id}"]`),r=document.querySelector(`[data-pm-rate="${pr.id}"]`);out[pr.id]={apply:a?a.checked:true,qty:q?parseFloat(q.value)||0:0,amount:m?parseFloat(m.value)||0:0,rate:r?r.value:""}});return out}
+function collectMonth(p){const out={};monthlyIds.forEach(id=>out[id]=(id==="quarterH"||monthlyTextIds.has(id))?$(id).value:(monthlyTextIds.has(id)?$(id).value:numVal(id)));out.primeMonth=currentPrimeMonth(p);return out}
+
+
+function calculateCsg(brut,exemptGross,employerHealth,employerPrevo,R){
+  const remainingGross=Math.max(0,brut-exemptGross);
+  const ordinaryBase=round(remainingGross*R.csgAbat/100+employerHealth+employerPrevo);
+  const exemptBase=round(exemptGross*R.csgAbat/100);
+  const deductible=round(ordinaryBase*R.csg/100);
+  const nondeductible=round(ordinaryBase*R.crds/100);
+  const exemptCsg=round(exemptBase*(R.csg+R.crds)/100);
+  return {ordinaryBase,exemptBase,deductible,nondeductible,exemptCsg};
+}
+/* Congés payés : retenue d'absence distincte de l'indemnité. L'absence de rémunération
+   de référence empêche de conclure que le maintien est plus favorable que le dixième. */
+function calculatePaidLeave(R,m,base,seniority,hourlyRate){
+ const days=R.cpOn?Math.max(0,Number(m.cpDays)||0):0;
+ const enabled=!!R.cpOn&&days>0;
+ const eligibleSalary=round(base+(R.cpAncOn?seniority:0));
+ const compareDays=R.cpDayType==="ouvres"?25:30;
+ const goron=R.cpHoldMode==="lissage"||R.cpHoldMode==="goron_modulation";
+ const real=R.cpHoldMode==="real_hours";
+ const hoursPerDay=Math.max(0,Number(R.cpHoursPerDay)||0);
+ const neutralByHours=goron&&R.cpNeutralMode==="hours";
+ const absenceHours=Math.max(0,Number(m.cpHoursAbsent)||0);
+ const monthlyHours=Math.max(0,Number(m.cpHoursMonth)||0);
+ const divisor=Number(R.cpDivisor)||0;
+ const canMaintain=!enabled||(real?(hasVal(m.cpHoursAbsent)&&hasVal(m.cpHoursMonth)&&monthlyHours>0&&absenceHours<=monthlyHours):(divisor>0&&(!neutralByHours||hoursPerDay>0)));
+ const maintaining=enabled&&canMaintain?round(real?eligibleSalary*absenceHours/monthlyHours:eligibleSalary*days/divisor):0;
+ const manualDeduct=enabled&&hasVal(m.cpManualDeduction);
+ const manualPay=enabled&&hasVal(m.cpManualPay);
+ const refComplete=enabled&&hasVal(m.cpReferenceGross)&&Number(m.cpReferenceGross)>0;
+ const tenth=refComplete?round(Math.max(0,Number(m.cpReferenceGross))*0.10*days/compareDays):null;
+ const valid=enabled&&canMaintain;
+ const neutralHours=goron?round(days*hoursPerDay):absenceHours;
+ const theoreticalDeduction=neutralByHours?round(days*hoursPerDay*hourlyRate):maintaining;
+ const deduction=valid?(manualDeduct?round(Math.max(0,Number(m.cpManualDeduction))):theoreticalDeduction):0;
+ const suggested=refComplete?Math.max(maintaining,tenth):maintaining;
+ const paid=valid?(manualPay?round(Math.max(0,Number(m.cpManualPay))):maintaining):0;
+ const selected=manualPay?"Montant du bulletin saisi":"Indemnité lissée du profil";
+ const tenthDifference=refComplete?round(tenth-paid):null;
+ const tenthHigher=refComplete&&tenth>paid+0.009;
+ let warnings=[];
+ if(enabled&&!canMaintain)warnings.push(real?"Renseigner les heures de congés et les heures théoriques réelles du mois : calcul CP suspendu.":"Diviseur journalier incorrect dans le profil : calcul CP suspendu.");
+ if(enabled&&canMaintain&&!refComplete)warnings.push("Rémunération de référence absente : calcul au dixième indisponible ; indemnité du profil appliquée seulement.");
+ if(enabled&&canMaintain&&tenthHigher)warnings.push(`ATTENTION : le calcul au dixième (${eur(tenth)} €) dépasse l’indemnité simulée (${eur(paid)} €) de ${eur(tenthDifference)} €. Vérifier et régulariser : le plus favorable est dû légalement. Le dixième n’a pas été ajouté automatiquement au brut.`);
+ if(enabled&&canMaintain&&manualPay&&paid+0.009<maintaining)warnings.push("Indemnité manuelle inférieure au maintien du profil : vérifier le bulletin.");
+ if(enabled&&canMaintain&&manualDeduct&&Math.abs(deduction-theoreticalDeduction)>0.01)warnings.push("La neutralisation manuelle diffère du montant calculé.");
+ if(enabled&&days>compareDays)warnings.push("Jours saisis supérieurs au référentiel d'une année complète : vérifier la saisie.");
+ return {enabled,days,eligibleSalary,compareDays,absenceHours,monthlyHours,divisor,real,goron,neutralByHours,hoursPerDay,neutralHours,theoreticalDeduction,valid,maintaining,tenth,refComplete,deduction,paid,selected,tenthDifference,tenthHigher,suggested,warnings};
+}
+
+function calc(){
+ const p=getProfile();if(!p)return null;
+ const R=p.rules,m=collectMonth(p),taux=m.taux;
+ const duree=m.contrat==="complet"?R.fullTimeHours:m.duree,carryOn=(R.carryMode||"preserve")!=="off";
+ const chev=carryOn?m.chev:0,chevNuit=carryOn?m.chevNuit:0,reportH=carryOn?m.reportH:0,reportNuit=carryOn?m.reportNuit:0;
+ const base=round(duree*taux),heuresTrav=Math.max(0,m.vac*R.vacationHours-chev);
+ const heuresNuit=Math.max(0,m.vac*R.nightHours-chevNuit)+reportNuit;
+ const reportTrav=round(reportH*taux),nuit=R.nightOn?round(heuresNuit*taux*R.nightPct/100):0;
+ const ferieMont=R.holidayOn?round(m.ferie*taux*R.holidayPct/100):0,ancien=R.seniorityOn?round(base*R.seniorityPct/100):0;
+ const divers=R.diversOn?round(m.diversH*taux):0,sunday=R.sundayOn?round(m.sundayH*R.sundayRate):0;
+ // Assiette habillage indépendante : ONET conserve toutes les vacations ; GORON peut déduire le chevauchement sortant.
+  const habBaseHours=Math.max(0,m.vac*R.vacationHours);
+  const habHours=R.habHoursMode==="after_chev"?Math.max(0,habBaseHours-chev):habBaseHours;
+  const hab=R.habOn?round(habHours*R.habValue):0;
+ const otMode=R.overtimeMode||"off",otMissing=otMode==="quarterly"&&String(m.quarterH).trim()==="";
+ const otHours=otMode==="monthly"?Math.max(0,m.overtimeH):otMode==="quarterly"&&!otMissing?Math.max(0,Number(m.quarterH)-R.overtimeThreshold):0;
+ const ot125=R.overtimeRates==="150"?0:R.overtimeRates==="125"?otHours:Math.min(8,otHours);
+ const ot150=R.overtimeRates==="150"?otHours:R.overtimeRates==="125"?0:Math.max(0,otHours-8);
+ let ot125Amount=round(ot125*taux*1.25),ot150Amount=round(ot150*taux*1.5);
+ const manualOt=otMode!=="off"&&otHours>0&&String(m.otGrossManual).trim()!=="";
+ const normalOt=round(ot125Amount+ot150Amount);
+ const overtimeGross=manualOt?round(Math.max(0,Number(m.otGrossManual))):normalOt;
+ if(manualOt){const delta=round(overtimeGross-normalOt);if(ot150>0)ot150Amount=round(ot150Amount+delta);else ot125Amount=round(ot125Amount+delta)}
+ const primeRows=[];let primeGross=0,primeNet=0;
+ (p.primes||[]).forEach(pr=>{
+  if(!pr.enabled)return;const pm=m.primeMonth[pr.id]||{apply:true,qty:0,amount:0};if(pm.apply===false)return;
+  let amount=0,baseTxt="",rateTxt="";
+  if(pr.method==="fixed"){amount=round(pr.value);baseTxt="1";rateTxt=eur(pr.value)+" €"}
+  else if(pr.method==="hours_hourly"){amount=round(pm.qty*taux);baseTxt=fmt(pm.qty);rateTxt=fmt(taux)+" €/heure"}
+  else if(pr.method==="hours_custom"){amount=round(pm.qty*pr.value);baseTxt=fmt(pm.qty);rateTxt=fmt(pr.value)+" €/heure"}
+  else if(pr.method==="contract_hours_custom"){amount=round(duree*pr.value);baseTxt=fmt(duree);rateTxt=fmt(pr.value)+" €/heure"}
+  else if(pr.method==="vacations"){amount=round(m.vac*pr.value);baseTxt=fmt(m.vac);rateTxt=eur(pr.value)+" €"}
+  else if(pr.method==="vacations_percent"){const hh=pm.qty*R.vacationHours;amount=round(hh*taux*pr.value/100);baseTxt=fmt(hh);rateTxt=fmt(pr.value)+" %"}
+  else if(pr.method==="hours_percent"||pr.method==="hours_rate_month"){const pct=pr.method==="hours_rate_month"&&pm.rate!==""?Number(pm.rate):pr.value;amount=round(pm.qty*taux*pct/100);baseTxt=fmt(pm.qty);rateTxt=fmt(pct)+" %"}
+  else if(pr.method==="base_percent"){amount=round(base*pr.value/100);baseTxt=eur(base)+" €";rateTxt=fmt(pr.value)+" %"}
+  else{amount=round(pm.amount)}
+  primeRows.push({...pr,amount,baseTxt,rateTxt});if(pr.target==="gross")primeGross+=amount;else primeNet+=amount;
+ });primeGross=round(primeGross);primeNet=round(primeNet);
+ const regSigned=round((m.regSign==="debit"?-1:1)*Math.abs(m.regAmount||0));
+ const regGross=m.regTarget==="gross"?regSigned:0,regNet=m.regTarget==="net"?regSigned:0;
+ const cp=calculatePaidLeave(R,m,base,ancien,taux);
+ const brut=round(base+reportTrav+overtimeGross+nuit+sunday+ferieMont+ancien+divers+hab+regGross+primeGross-cp.deduction+cp.paid);
+ const pmss=R.pmss,cotBaseMode=R.cotBaseMode||"pmss";
+ const santeBase=cotBaseMode==="gross"?brut:pmss,sante=round(santeBase*R.health/100),inv=round(brut*R.inv/100);
+ const ssPlafBase=cotBaseMode==="gross"?brut:Math.min(brut,pmss),ssPlaf=round(ssPlafBase*R.ssPlaf/100);
+ const ssDeplaf=round(brut*R.ssDeplaf/100),t1base=cotBaseMode==="gross"?brut:Math.min(brut,pmss),retraite=round(t1base*R.t1/100);
+ // Part employeur, non part salarié. La saisie mensuelle prime sur le pourcentage du profil.
+ const hasPatHealth=String(m.patHealth).trim()!=="",hasPatPrevo=String(m.patPrevo).trim()!=="";
+ const empHealth=hasPatHealth?round(Math.max(0,Number(m.patHealth))):round((R.empHealthBase==="gross"?brut:pmss)*R.empHealthRate/100);
+ const empPrevo=hasPatPrevo?round(Math.max(0,Number(m.patPrevo))):round((R.empPrevoBase==="pmss"?pmss:brut)*R.empPrevoRate/100);
+ const employerIncomplete=(!hasPatHealth&&Number(R.empHealthRate)===0)||(!hasPatPrevo&&Number(R.empPrevoRate)===0);
+ // Plafond fiscal (7 500 € en net fiscal) : approximation en brut à partir de l'abattement et de la CSG déductible.
+ const fiscalNetFactor=1-R.csgAbat/100*R.csg/100;
+ const fiscalGrossLimit=fiscalNetFactor>0?R.otTaxLimit/fiscalNetFactor:0;
+ const usedGross=Math.max(0,Number(m.otFiscalCumul)||0);
+ const taxAndCsgEnabled=!!R.csgOvertimeOn&&!!R.otTaxExemptOn;
+ const otExemptGross=taxAndCsgEnabled?round(Math.min(overtimeGross,Math.max(0,fiscalGrossLimit-usedGross))):0;
+ const otTaxableGross=round(Math.max(0,overtimeGross-otExemptGross));
+ const csgCalc=calculateCsg(brut,otExemptGross,empHealth,empPrevo,R);
+ const baseCSG=csgCalc.ordinaryBase,baseCsgOt=csgCalc.exemptBase,csg=csgCalc.deductible,crds=csgCalc.nondeductible,csgOt=csgCalc.exemptCsg;
+ const eligiblePensionRate=Math.max(0,R.ssPlaf+R.ssDeplaf+R.t1);
+ const reliefRate=R.otReliefOn?Math.min(Math.max(0,R.otReliefPct),eligiblePensionRate):0;
+ const otRelief=R.otReliefOn?round(overtimeGross*reliefRate/100):0;
+ const cotBefore=round(sante+inv+ssPlaf+ssDeplaf+retraite+csg+crds+csgOt),cot=round(cotBefore-otRelief);
+ let panier=0;if(R.panierMode==="vacation")panier=round(m.vac*R.panierValue);else if(R.panierMode==="fixed")panier=round(R.panierValue);
+ const entretienHours=Math.max(0,m.vac*R.vacationHours),entretien=R.entretienOn?round(entretienHours*R.entretienRate):0;
+ const net=round(brut-cot+panier+entretien+primeNet+regNet-m.acompte);
+ return {p,R,m,duree,cp,otMode,otMissing,otHours,ot125,ot150,ot125Amount,ot150Amount,overtimeGross,otExemptGross,otTaxableGross,otRelief,reliefRate,empHealth,empPrevo,employerIncomplete,fiscalGrossLimit,usedGross,baseCsgOt,csgOt,carryOn,chev,chevNuit,reportH,reportNuit,base,heuresTrav,heuresNuit,reportTrav,nuit,sunday,ferieMont,ancien,divers,habHours,hab,primeRows,primeGross,primeNet,regSigned,regGross,regNet,brut,pmss,cotBaseMode,santeBase,sante,inv,ssPlafBase,ssPlaf,ssDeplaf,t1base,retraite,baseCSG,csg,crds,cot,panier,entretienHours,entretien,net};
+}
+function tr(lib,base,taux,mont,cls=""){return `<tr class="${cls}"><td>${escapeHtml(lib)}</td><td>${base}</td><td>${taux}</td><td>${eur(mont)} €</td></tr>`}
+function renderCpAudit(v){
+ const card=$("cpAuditCard"),c=v.cp;
+ card.style.display=v.R.cpOn?"":"none";
+ if(!v.R.cpOn)return;
+ const rows=[
+  ["Jours pris",fmt(c.days),v.R.cpDayType==="ouvres"?"ouvrés":"ouvrables",null],
+  ["Maintien de salaire",eur(c.eligibleSalary)+" €",c.real?`${fmt(c.absenceHours)} / ${fmt(c.monthlyHours)} heures`:`${fmt(c.days)} / ${fmt(c.divisor)} jours`,c.maintaining],
+  ["Dixième — calcul parallèle",c.refComplete?eur(Number(v.m.cpReferenceGross))+" €":"Non renseigné",`${fmt(c.days)} / ${fmt(c.compareDays)} jours`,c.tenth],
+  ["Écart dixième − indemnité simulée", "Comparaison informative",c.refComplete?(c.tenthHigher?"Dixième supérieur : vérifier":"Indemnité simulée ≥ dixième"):"En attente de référence",c.tenthDifference],
+  ["Indemnité de congés (+)","Brut",c.selected,c.paid],
+  ["Neutralisation de congés (−)",c.neutralByHours?`${fmt(c.neutralHours)} heures`:"Même montant",c.valid?(c.neutralByHours?"Heures × taux horaire":"Contrepartie congés pris"):"Suspendue",-c.deduction]
+ ];
+ $("cpAuditBody").innerHTML=rows.map(([label,basis,method,amount])=>`<tr><td>${escapeHtml(label)}</td><td>${escapeHtml(basis)}</td><td>${escapeHtml(method)}</td><td>${amount===null?"—":eur(amount)+" €"}</td></tr>`).join("");
+ $("cpAuditInfo").textContent=c.enabled?(c.warnings.length?c.warnings.join(" "):`Indemnité simulée : ${c.selected}. ${c.goron?"Salaire lissé ONET/GORON : indemnité (+) et neutralisation (−) affichées séparément. ":""}Le dixième est un contrôle informatif qui ne modifie pas automatiquement le brut. Indemnité et retenue intégrées aux assiettes concernées.`):"Aucun congé payé saisi pour ce mois.";
+ $("cpMonthWarning").textContent=c.enabled?c.warnings.join(" "):"";
+}
+function renderCsgAudit(v){
+ const method=v.otMode==="monthly"?"Mensuel":v.otMode==="quarterly"?"Trimestriel":"Désactivé";
+ const rate=Number(v.R.csgAbat);
+ const remainingGross=round(Math.max(0,v.brut-v.otExemptGross));
+ const items=[
+  ["Brut simulé", "Base de départ",v.brut],
+  ["Heures sup comprises dans le brut",method,v.overtimeGross],
+  ["Dont heures sup exonérées retenues pour la CSG", "À isoler",v.otExemptGross],
+  ["Brut hors heures sup exonérées", "Avant abattement",remainingGross],
+  ["Assiette salariale après abattement", `${fmt(rate)} % du brut restant`,round(remainingGross*rate/100)],
+  ["Contribution santé employeur", "Part patronale",v.empHealth],
+  ["Contribution prévoyance employeur", "Part patronale",v.empPrevo],
+  ["BASE CSG ORDINAIRE", `${fmt(v.R.csg)} % / ${fmt(v.R.crds)} %`,v.baseCSG],
+  ["BASE CSG HEURES SUP EXONÉRÉES",`${fmt(rate)} % des heures sup`,v.baseCsgOt]
+ ];
+ $("csgAuditBody").innerHTML=items.map(([lib,detail,n],i)=>`<tr class="${i>=7?"tot":""}"><td>${escapeHtml(lib)}</td><td colspan="2">${escapeHtml(detail)}</td><td>${eur(n)} €</td></tr>`).join("");
+ const notices=[];
+ if(v.otMode==="off")notices.push("Heures supplémentaires désactivées dans ce profil. Si le bulletin contient des heures supplémentaires, activer le mode Mensuel ou Trimestriel dans Paramétrer → 03.");
+ else if(v.otMissing)notices.push("Compteur trimestriel non renseigné : les heures supplémentaires et leur assiette CSG sont provisoirement à zéro.");
+ else if(v.otHours===0)notices.push("Aucune heure supplémentaire retenue ce mois : aucune somme n'est isolée de la CSG ordinaire.");
+ if(v.otHours===0&&String(v.m.otGrossManual).trim()!=="")notices.push("Le montant brut manuel d'heures supplémentaires est ignoré tant qu'aucune heure supplémentaire n'est déclarée.");
+ if(v.overtimeGross>0&&v.otExemptGross===0){
+  if(!v.R.csgOvertimeOn||!v.R.otTaxExemptOn)notices.push("Les heures supplémentaires sont présentes dans le brut mais non isolées pour la CSG : vérifier les options d'exonération du profil.");
+  else notices.push("Les heures supplémentaires ne sont plus isolées dans l'assiette exonérée : vérifier le plafond annuel et les données fiscales.");
+ }
+ if(v.otExemptGross>0)notices.push(`Heures supplémentaires : ${eur(v.otExemptGross)} € retirés du brut avant calcul de la CSG ordinaire et ${eur(v.baseCsgOt)} € soumis séparément à 9,7 %.`);
+ const real=String(v.m.realBrut).trim();
+ if(real!==""&&Number.isFinite(Number(real))&&Math.abs(Number(real)-v.brut)>0.009)notices.push(`Brut réel déclaré : ${eur(Number(real))} € ; brut simulé : ${eur(v.brut)} €. L'écart de ${eur(Math.abs(Number(real)-v.brut))} € influence la CSG simulée.`);
+ if(v.employerIncomplete)notices.push("Les contributions patronales sont incomplètes : renseigner Santé et Prévoyance pour fiabiliser l'assiette CSG.");
+ $("csgAuditInfo").textContent=notices.join(" ");
+ $("overtimeModeHint").textContent=`Mode actuel du profil : ${method}. Les heures supplémentaires ne sont isolées pour la CSG que si elles sont déclarées et éligibles à l'exonération.`;
+}
+function render(){
+ const p=getProfile();if(!p){$("tbody").innerHTML="";$("net").textContent="—";$("controlCard").style.display="none";return}
+ const isPart=$("contrat").value==="partiel",carryOn=(p.rules.carryMode||"preserve")!=="off";
+ $("duree").disabled=!isPart;["chev","chevNuit","reportH","reportNuit"].forEach(id=>$(id).disabled=!carryOn);
+ ["carryChevBox","carryChevNightBox","carryReportBox","carryReportNightBox"].forEach(id=>$(id).style.opacity=carryOn?"1":"0.5");
+ $("overtimeH").disabled=p.rules.overtimeMode!=="monthly";$("quarterH").disabled=p.rules.overtimeMode!=="quarterly";
+ $("otGrossManual").disabled=p.rules.overtimeMode==="off";
+ $("dureeHint").textContent=isPart?"Saisir les heures mensuelles du contrat":`Temps complet : ${fmt(p.rules.fullTimeHours)} heures (profil)`;
+ if(isPart&&numVal("duree")<=0){$("tbody").innerHTML="";$("net").textContent="—";$("controlCard").style.display="none";$("summary").textContent="Saisir une durée contractuelle valide.";return}
+ $("cpMonthSection").style.display=p.rules.cpOn?"":"none";
+ $("cpRealHours1").style.display=p.rules.cpHoldMode==="real_hours"?"":"none";
+ $("cpRealHours2").style.display=p.rules.cpHoldMode==="real_hours"?"":"none";
+ const v=calc();renderCpAudit(v);let h='<tr class="section"><td colspan="4">RÉMUNÉRATION BRUTE</td></tr>';
+ h+=tr("Salaire de base",fmt(v.duree),fmt(v.m.taux)+" €/heure",v.base,"var");
+ if(v.carryOn&&v.reportH)h+=tr("Report de travail — mois précédent",fmt(v.reportH),fmt(v.m.taux)+" €/heure",v.reportTrav,"var");
+ if(v.otMode!=="off"){
+  if(v.ot125)h+=tr("Heures supplémentaires — 125 %",fmt(v.ot125),"125 %",v.ot125Amount,"var");
+  if(v.ot150)h+=tr("Heures supplémentaires — 150 %",fmt(v.ot150),"150 %",v.ot150Amount,"var");
+  if(v.otMissing)h+='<tr><td colspan="4" class="status-warn">Compteur trimestriel non renseigné : montant provisoire de 0 €.</td></tr>';
+ }
+ if(v.cp.enabled){
+  h+=tr("Indemnité de congés payés (+)",fmt(v.cp.days)+" jours",v.cp.selected,v.cp.paid,"var");
+  h+=tr(v.cp.goron?"Neutralisation congés pris (−)":"Absence congés payés (−)",v.cp.neutralByHours?fmt(v.cp.neutralHours):fmt(v.cp.days)+" jours",v.cp.valid?(v.cp.neutralByHours?fmt(v.m.taux)+" €/heure":"Neutralisation"):"À vérifier",-v.cp.deduction,"var");
+  if(!v.cp.valid)h+='<tr><td colspan="4" class="status-warn">Congés payés non calculés : données incomplètes.</td></tr>';
+ }
+ if(v.R.nightOn)h+=tr("Majoration de nuit",fmt(v.heuresNuit),fmt(v.R.nightPct)+" %",v.nuit,"var");
+ if(v.R.sundayOn)h+=tr("Majoration du dimanche",fmt(v.m.sundayH),fmt(v.R.sundayRate)+" €/heure",v.sunday,"var");
+ if(v.R.holidayOn)h+=tr("Heures fériées",fmt(v.m.ferie),fmt(v.R.holidayPct)+" %",v.ferieMont,"var");
+ if(v.R.seniorityOn)h+=tr("Prime d'ancienneté",eur(v.base)+" €",fmt(v.R.seniorityPct)+" %",v.ancien,"var");
+ if(v.R.diversOn)h+=tr("Heures diverses",fmt(v.m.diversH),fmt(v.m.taux)+" €/heure",v.divers,"var");
+ if(v.R.habOn)h+=tr("Habillage",fmt(v.habHours),Number(v.R.habValue).toLocaleString("fr-FR",{minimumFractionDigits:3,maximumFractionDigits:4})+" €/heure",v.hab,"var");
+ if(v.m.regTarget==="gross"&&v.regSigned)h+=tr(v.m.regLabel||"Régularisation",v.m.regSign==="debit"?"Débit":"Crédit","Brut",v.regSigned,"var");
+ v.primeRows.filter(x=>x.target==="gross").forEach(x=>h+=tr(x.name,x.baseTxt,x.rateTxt,x.amount,"var"));
+ h+=tr("TOTAL BRUT","","",v.brut,"tot");
+ h+='<tr class="section"><td colspan="4">COTISATIONS SALARIALES</td></tr>';
+ h+=tr("Complémentaire santé",eur(v.santeBase)+" €",fmt(v.R.health)+" %",-v.sante);
+ h+=tr("Invalidité-décès",eur(v.brut)+" €",fmt(v.R.inv)+" %",-v.inv);
+ h+=tr("Vieillesse plafonnée",eur(v.ssPlafBase)+" €",fmt(v.R.ssPlaf)+" %",-v.ssPlaf);
+ h+=tr("Vieillesse déplafonnée",eur(v.brut)+" €",fmt(v.R.ssDeplaf)+" %",-v.ssDeplaf);
+ h+=tr("Retraite complémentaire T1",eur(v.t1base)+" €",fmt(v.R.t1)+" %",-v.retraite);
+ h+='<tr class="section"><td colspan="4">CSG / CRDS</td></tr>';
+ h+=tr("CSG déductible",eur(v.baseCSG)+" €",fmt(v.R.csg)+" %",-v.csg);
+ h+=tr("CSG / CRDS non déductible",eur(v.baseCSG)+" €",fmt(v.R.crds)+" %",-v.crds);
+ if(v.baseCsgOt>0)h+=tr("CSG / CRDS — heures sup exonérées",eur(v.baseCsgOt)+" €",fmt(v.R.csg+v.R.crds)+" %",-v.csgOt);
+ if(v.R.otReliefOn&&v.overtimeGross>0)h+=tr("Réduction cotisations heures sup",eur(v.overtimeGross)+" €",fmt(v.reliefRate)+" %",v.otRelief,"var");
+ h+=tr("TOTAL COTISATIONS NETTES","","",-v.cot,"tot");
+ h+='<tr class="section"><td colspan="4">REMBOURSEMENTS ET NET</td></tr>';
+ if(v.R.panierMode!=="off")h+=tr("Panier",v.R.panierMode==="vacation"?fmt(v.m.vac):"1",eur(v.R.panierValue)+" €",v.panier,"var");
+ if(v.R.entretienOn)h+=tr("Indemnité entretien tenue",fmt(v.entretienHours),Number(v.R.entretienRate).toLocaleString("fr-FR",{minimumFractionDigits:4,maximumFractionDigits:4})+" €/heure",v.entretien,"var");
+ v.primeRows.filter(x=>x.target==="net").forEach(x=>h+=tr(x.name,x.baseTxt,x.rateTxt,x.amount,"var"));
+ if(v.m.regTarget==="net"&&v.regSigned)h+=tr(v.m.regLabel||"Régularisation",v.m.regSign==="debit"?"Débit":"Crédit","Hors brut",v.regSigned,"var");
+ if(v.m.acompte)h+=tr("Acompte","","",-v.m.acompte,"var");
+ h+=tr("NET À PAYER AVANT IMPÔT","","",v.net,"final");
+ if(v.overtimeGross>0)h+=`<tr><td colspan="4" class="note">Heures supplémentaires potentiellement exonérées d'impôt : ${eur(v.otExemptGross)} € brut (plafond annuel et conditions à vérifier). Cette application ne calcule pas le prélèvement à la source.</td></tr>`;
+ $("tbody").innerHTML=h;$("net").textContent=eur(v.net)+" €";
+ $("summary").textContent=`Profil ${p.name} · Brut ${eur(v.brut)} € · Cotisations ${eur(v.cot)} €`;
+ const assietteDetail=`Base CSG ordinaire : (${eur(v.brut)} € brut − ${eur(v.otExemptGross)} € heures sup exonérées) × ${fmt(v.R.csgAbat)} % + ${eur(v.empHealth)} € santé employeur + ${eur(v.empPrevo)} € prévoyance employeur = ${eur(v.baseCSG)} €.`;
+ const needHealth=String(v.m.patHealth).trim()===""&&Number(v.R.empHealthRate)===0;
+ const needPrevo=String(v.m.patPrevo).trim()===""&&Number(v.R.empPrevoRate)===0;
+ const missingFields=[needHealth?"santé patronale":"",needPrevo?"prévoyance patronale":""].filter(Boolean).join(" et ");
+ $("csgWarning").textContent=assietteDetail+(v.employerIncomplete?` ATTENTION : ${missingFields} non renseignée(s) ; base CSG et net provisoires.`:"");
+ $("csgMainAlert").textContent=v.employerIncomplete?`CSG À VÉRIFIER : ${missingFields} non renseignée(s). Ouvrir « 03 · Heures supplémentaires et CSG » et compléter les montants employeur, ou configurer les taux du profil. La base ${eur(v.baseCSG)} € est provisoire.`:"";
+ renderCsgAudit(v);renderControl(v);$("printHead").textContent="Profil « "+p.name+" »"+(validMonth(v.m.moisRef)?" — bulletin de "+monthLabel(v.m.moisRef):"")+" — simulation du "+new Date().toLocaleDateString("fr-FR");
+}
+
+/* ===== PRO 8.3 ===== */
+const HIST_PREFIX="bc_pro_hist_v1_";
+const signed=x=>(x>0?"+":x<0?"−":"")+eur(Math.abs(x));
+const validMonth=s=>/^\d{4}-(0[1-9]|1[0-2])$/.test(String(s||""));
+const hasVal=s=>String(s===undefined||s===null?"":s).trim()!=="";
+function monthLabel(k){return validMonth(k)?new Date(k+"-01T12:00:00").toLocaleDateString("fr-FR",{month:"long",year:"numeric"}):String(k)}
+function loadHist(id){try{const h=JSON.parse(localStorage.getItem(HIST_PREFIX+id)||"{}");return h&&typeof h==="object"&&!Array.isArray(h)?h:{}}catch(e){return {}}}
+function saveHist(id,h){localStorage.setItem(HIST_PREFIX+id,JSON.stringify(h))}
+
+function renderControl(v){
+ const defs=[["Total brut",v.brut,v.m.realBrut],["Cotisations nettes",v.cot,v.m.realCot],["Net à payer avant impôt",v.net,v.m.realNet]];
+ const hasReal=defs.some(d=>hasVal(d[2]));
+ const T=0.05,gaps={};let h="";
+ defs.forEach(([lib,sim,real],i)=>{
+  if(!hasVal(real)){h+=`<tr><td>${lib}</td><td>${eur(sim)} €</td><td>—</td><td>—</td></tr>`;return}
+  const r=round(Math.max(0,Number(real))),g=round(r-sim);gaps[i]=g;
+  const st=Math.abs(g)<0.005?'<span class="status-ok">0,00 €</span>':Math.abs(g)<=T?`<span class="status-ok">${signed(g)} € (arrondi)</span>`:`<span class="status-warn">${signed(g)} €</span>`;
+  h+=`<tr class="var"><td>${lib}</td><td>${eur(sim)} €</td><td>${eur(r)} €</td><td>${st}</td></tr>`});
+ $("ctlBody").innerHTML=h;
+ const bad=i=>gaps[i]!==undefined&&Math.abs(gaps[i])>T,ok=i=>gaps[i]!==undefined&&Math.abs(gaps[i])<=T,msgs=[];
+ if(bad(0))msgs.push("Écart sur le brut : vérifier d'abord les éléments bruts (heures, majorations, ancienneté, primes, régularisation) ; les écarts de cotisations et de net en découlent en partie.");
+ else if(bad(1))msgs.push((ok(0)?"Brut cohérent":"Brut non contrôlé")+", mais cotisations différentes : vérifier la base CSG (parts patronales santé et prévoyance), les taux du profil et la réduction sur heures supplémentaires.");
+ if(!bad(0)&&!bad(1)&&bad(2))msgs.push("Aucun écart notable sur le brut ni sur les cotisations contrôlés, mais le net diffère : vérifier panier, indemnité d'entretien, primes hors brut, régularisation hors brut et acompte.");
+  if(!hasReal){
+    msgs.push("Comparaison disponible : renseignez le brut, les cotisations ou le net réel dans « 05 · Contrôle avec le bulletin réel ». Les écarts apparaîtront ici automatiquement.");
+  }else{
+    if(!msgs.length)msgs.push("Aucun écart supérieur à l'arrondi (0,05 €) sur les postes renseignés.");
+    msgs.push("Un écart peut venir d'un réglage du profil autant que d'une erreur de l'employeur : confronter chaque ligne au bulletin avant de conclure.");
+  }
+  $("ctlDiag").innerHTML=msgs.map(escapeHtml).join("<br>");
+ $("controlCard").style.display=""}
+
+function renderHistory(){
+ const p=getProfile(),card=$("histCard"),box=$("histBody");
+ if(!p){card.style.display="none";box.innerHTML="";return}
+ card.style.display="";
+ const h=loadHist(p.id),keys=Object.keys(h).sort().reverse();
+ if(!keys.length){box.innerHTML='<div class="hint">Aucun mois enregistré pour ce profil. Choisir le mois du bulletin (section 01) puis « Enregistrer ce mois ».</div>';return}
+ let html=keys.map(k=>{const e=h[k]||{},r=e.res||{},d=e.data||{},real=hasVal(d.realNet)?round(Math.max(0,Number(d.realNet))):null;
+  return `<div class="hist-row"><div><strong>${escapeHtml(monthLabel(k))}</strong><small>Simulé : brut ${eur(r.brut)} € · net ${eur(r.net)} €</small><small>${real===null?"Bulletin réel non renseigné":`Réel : net ${eur(real)} € · écart (réel − simulé) ${signed(round(real-Number(r.net||0)))} €`}</small></div><div class="row" style="margin-top:0"><button type="button" class="sec mini-btn" data-hist="load" data-m="${escapeHtml(k)}">Charger</button><button type="button" class="danger mini-btn" data-hist="del" data-m="${escapeHtml(k)}">Supprimer</button></div></div>`}).join("");
+ const ref=validMonth($("moisRef").value)?$("moisRef").value:keys[0],y=ref.slice(0,4),ys=keys.filter(k=>k.slice(0,4)===y);
+ if(ys.length){const sum=f=>round(ys.reduce((a,k)=>a+(Number(h[k]&&h[k].res&&h[k].res[f])||0),0));
+  html+=`<div class="hist-total">Cumul ${escapeHtml(y)} (simulé, ${ys.length} mois enregistré${ys.length>1?"s":""}) : brut ${eur(sum("brut"))} € · net avant impôt ${eur(sum("net"))} € · heures sup exonérées ${eur(sum("otExempt"))} € brut</div>`}
+ box.innerHTML=html+'<div class="hint">Les montants simulés sont ceux calculés à l’enregistrement ; modifier le profil ensuite ne les change pas.</div>'}
+
+function saveMonthToHistory(){
+ const p=getProfile();if(!p)return;
+ const ref=$("moisRef").value;
+ if(!validMonth(ref)){$("msg").textContent="Choisir le mois du bulletin (section 01) avant d'enregistrer.";return}
+ const preview=calc();
+ if(preview.cp.enabled&&!preview.cp.valid){$("msg").textContent="Congés payés incomplets : compléter les heures ou le diviseur avant d'enregistrer le mois.";return}
+ const h=loadHist(p.id),existed=!!h[ref];
+ if(existed&&!confirm(`Un enregistrement existe déjà pour ${monthLabel(ref)}. Le remplacer ?`))return;
+ try{
+  const data=collectMonth(p),v=calc();
+  localStorage.setItem(MONTH_PREFIX+p.id,JSON.stringify(data));
+  h[ref]={data,res:{brut:v.brut,cot:v.cot,net:v.net,otGross:v.overtimeGross,otExempt:v.otExemptGross,cpDays:v.cp.days,cpDeduction:v.cp.deduction,cpPaid:v.cp.paid},savedAt:new Date().toISOString()};
+  saveHist(p.id,h);
+  $("msg").textContent=(existed?"Mois remplacé : ":"Mois enregistré : ")+monthLabel(ref)+".";
+  renderHistory();
+ }catch(e){$("msg").textContent="Enregistrement impossible : stockage du navigateur plein ou bloqué."}}
+
+function loadHistMonth(k){
+ const p=getProfile();if(!p)return;const e=loadHist(p.id)[k];if(!e||!e.data)return;
+ const m={...defaultMonth(p),...e.data};m.primeMonth=normalizePrimeMonth(p,e.data);
+ monthlyIds.forEach(id=>{if(m[id]!==undefined)$(id).value=m[id]});
+ $("moisRef").value=validMonth(k)?k:"";
+ renderMonthlyPrimes(p,m);render();renderHistory();
+ $("msg").textContent="Mois chargé : "+monthLabel(k)+". Le recalcul applique les réglages actuels du profil.";}
+function deleteHistMonth(k){
+ const p=getProfile();if(!p)return;if(!confirm(`Supprimer l'enregistrement de ${monthLabel(k)} ?`))return;
+ const h=loadHist(p.id);delete h[k];try{saveHist(p.id,h)}catch(e){}renderHistory();}
+
+function exportAll(){
+ const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("bc_pro_"))data[k]=localStorage.getItem(k)}
+ if(!Object.keys(data).length){$("dataMsg").textContent="Aucune donnée à exporter.";return}
+ const blob=new Blob([JSON.stringify({app:"BULLETIN_CONTROL_PRO",version:"8.3.5",exportedAt:new Date().toISOString(),data},null,1)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="bulletin-control-sauvegarde-"+new Date().toISOString().slice(0,10)+".json";
+ document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+ $("dataMsg").textContent=`Sauvegarde générée : ${profiles.length} profil${profiles.length>1?"s":""}. Conserver le fichier en dehors du téléphone.`}
+function importAll(file){
+ if(!file)return;if(file.size>5e6){$("dataMsg").textContent="Fichier trop volumineux.";return}
+ const rd=new FileReader();
+ rd.onerror=()=>{$("dataMsg").textContent="Lecture du fichier impossible."};
+ rd.onload=()=>{try{
+  const j=JSON.parse(rd.result);
+  if(!j||j.app!=="BULLETIN_CONTROL_PRO"||!j.data||typeof j.data!=="object")throw new Error("ce fichier n'est pas une sauvegarde de cette application.");
+  const keys=Object.keys(j.data).filter(k=>k.startsWith("bc_pro_")&&typeof j.data[k]==="string");
+  let impProfiles=[];
+  if(typeof j.data[PROFILE_KEY]==="string"){const arr=JSON.parse(j.data[PROFILE_KEY]);if(!Array.isArray(arr))throw new Error("profils illisibles.");impProfiles=arr.map(normalizeProfile).filter(x=>x&&x.id)}
+  const monthKeys=keys.filter(k=>k.startsWith(MONTH_PREFIX)||k.startsWith(HIST_PREFIX));
+  monthKeys.forEach(k=>JSON.parse(j.data[k]));
+  if(!impProfiles.length&&!monthKeys.length)throw new Error("aucune donnée exploitable dans ce fichier.");
+  if(!confirm(`Importer ${impProfiles.length} profil(s) et ${monthKeys.length} jeu(x) de données mensuelles ?\nLes profils de même identifiant et les mois de même date seront remplacés par la version importée ; le reste est conservé.`))return;
+  impProfiles.forEach(ip=>{const i=profiles.findIndex(x=>x.id===ip.id);if(i>=0)profiles[i]=ip;else profiles.push(ip)});
+  saveProfiles();
+  monthKeys.forEach(k=>{
+   if(k.startsWith(HIST_PREFIX)){let cur={};try{cur=JSON.parse(localStorage.getItem(k)||"{}")||{}}catch(e){}localStorage.setItem(k,JSON.stringify({...cur,...JSON.parse(j.data[k])}))}
+   else localStorage.setItem(k,j.data[k])});
+  renderProfileList();if(getProfile())applyProfile(getProfile(),false);
+  $("dataMsg").textContent=`Import terminé : ${impProfiles.length} profil(s), ${monthKeys.length} jeu(x) mensuel(s).`;
+ }catch(e){$("dataMsg").textContent="Import annulé : "+e.message}};
+ rd.readAsText(file)}
+
+$("moisRef").addEventListener("input",renderHistory);$("moisRef").addEventListener("change",renderHistory);
+$("histBody").addEventListener("click",e=>{const b=e.target.closest("button[data-hist]");if(!b)return;if(b.dataset.hist==="load")loadHistMonth(b.dataset.m);else deleteHistMonth(b.dataset.m)});
+$("calcCumulOt").onclick=()=>{
+ const p=getProfile();if(!p)return;const ref=$("moisRef").value;
+ if(!validMonth(ref)){$("cumulMsg").textContent="Choisir d'abord le mois du bulletin (section 01).";return}
+ const h=loadHist(p.id),y=ref.slice(0,4);let sum=0,n=0;
+ Object.keys(h).forEach(k=>{if(k.slice(0,4)===y&&k<ref){sum+=Number(h[k]&&h[k].res&&h[k].res.otExempt)||0;n++}});
+ $("otFiscalCumul").value=round(sum);render();
+ $("cumulMsg").textContent=`Calculé sur ${n} mois enregistré(s) de ${y} antérieur(s) à ${monthLabel(ref)} : ${eur(sum)} €. Vérifier qu'aucun mois n'est manquant ; les autres employeurs ne sont pas comptés.`};
+$("printBtn").onclick=()=>window.print();
+$("exportData").onclick=exportAll;$("importData").onclick=()=>$("importFile").click();
+$("importFile").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];e.target.value="";importAll(f)});
+
+monthlyIds.forEach(id=>$(id).addEventListener("input",()=>{
+ // Une correction du compteur ou des heures invalide l'ancien montant brut manuel.
+ if((id==="overtimeH"||id==="quarterH")&&$("otGrossManual").value.trim()!==""){
+  $("otGrossManual").value="";
+  $("msg").textContent="Heures supplémentaires modifiées : montant manuel précédent effacé, calcul automatique rétabli.";
+ }
+ render();
+}));
+$("applyOnetCsgMonth").addEventListener("click",()=>{const p=getProfile();if(!p)return;$("patHealth").value="21.63";$("patPrevo").value="21.42";render();$("msg").textContent="Parts patronales ONET 09/2026 renseignées pour ce mois. Enregistrer le mois pour les conserver."});
+$("presetOnetCsg").addEventListener("click",()=>{$("pEmpHealthBase").value="pmss";$("pEmpHealthRate").value="0.540";$("pEmpPrevoBase").value="gross";$("pEmpPrevoRate").value="0.865";$("profileMsg").textContent="Taux ONET de l’exemple préremplis. Enregistrer le profil pour appliquer ce réglage."});
+$("chooseProfile").onclick=()=>openChooser(false);$("editProfile").onclick=()=>{const p=getProfile();if(p)openEditor(p)};$("newProfile").onclick=()=>{openEditor(null)};$("closeChooser").onclick=closeChooser;$("cancelProfile").onclick=()=>$("profileEditor").classList.remove("show");$("saveProfile").onclick=saveProfileFromEditor;
+$("addPrime").onclick=addPrimeEditor;$("primeEditors").addEventListener("click",e=>{const b=e.target.closest("button[data-prime-action]");if(!b)return;const i=parseInt(b.dataset.primeIndex,10);if(b.dataset.primeAction==="remove")removePrimeEditor(i);else if(b.dataset.primeAction==="duplicate")duplicatePrimeEditor(i)});
+$("profilesList").addEventListener("click",e=>{const b=e.target.closest("button[data-act]");if(!b)return;const {act,id}=b.dataset;if(act==="use"){activeId=id;localStorage.setItem(ACTIVE_KEY,id);$("profileChooser").classList.remove("show");applyProfile(getProfile(),false)}else if(act==="dup")duplicateProfile(id);else if(act==="rename")renameProfile(id);else if(act==="edit"){const p=profiles.find(x=>x.id===id);if(p)openEditor(p)}else if(act==="del")deleteProfile(id)});
+$("saveMonth").onclick=saveMonthToHistory;
+$("clearMonth").onclick=()=>{const p=getProfile();if(!p)return;const m=defaultMonth(p);monthlyIds.forEach(id=>$(id).value=m[id]);renderMonthlyPrimes(p,m);render();$("msg").textContent="Données mensuelles remises à zéro. Le profil n'a pas été modifié."};
+
+// Évite de conserver des paramètres CP impossibles à calculer.
+$("pCpHoldMode").addEventListener("change",()=>{$("profileMsg").textContent="La méthode sera appliquée après enregistrement du profil."});
+if(activeId&&!getProfile()){activeId="";localStorage.removeItem(ACTIVE_KEY)}
+if(getProfile())applyProfile(getProfile(),false);else{openChooser(true);renderHistory()}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js");
+</script>
+</body></html>
